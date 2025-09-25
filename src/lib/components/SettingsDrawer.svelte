@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { settings, typingState, updateSetting, resetSettings } from '../stores';
-	import { AVAILABLE_FONTS } from '../constants';
+	import { settings, typingState, updateSetting, resetSettings, currentTheme } from '../stores';
+	import { AVAILABLE_FONTS, AVAILABLE_THEMES } from '../constants';
 	import type { TypingEngine } from '../utils/TypingEngine';
 
 	interface Props {
@@ -10,7 +10,8 @@
 	let { typingEngine }: Props = $props();
 
 	let { settingsOpen, isTyping } = $derived($typingState);
-	let { backgroundColor, textColor, fontSizeValue, fontSize, fontFamily, previewTextSize, typingSpeed, soundEnabled } = $derived($settings);
+	let { backgroundColor, textColor, fontSizeValue, fontSize, fontFamily, previewTextSize, typingSpeed, soundEnabled, currentTheme: selectedTheme } = $derived($settings);
+	let theme = $derived($currentTheme);
 
 	function closeSettings() {
 		typingState.update(current => ({ ...current, settingsOpen: false }));
@@ -60,6 +61,11 @@
 		if (!typingEngine) return;
 		typingEngine.clearPreview();
 	}
+
+	function handleThemeChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		updateSetting('currentTheme', target.value);
+	}
 </script>
 
 {#if settingsOpen}
@@ -92,6 +98,18 @@
 			</button>
 		</div>
 		<div class="settings-grid">
+			<div class="setting">
+				<label for="theme-selector">Theme</label>
+				<select 
+					id="theme-selector" 
+					value={selectedTheme}
+					onchange={handleThemeChange}
+				>
+					{#each AVAILABLE_THEMES as themeOption}
+						<option value={themeOption.id}>{themeOption.name}</option>
+					{/each}
+				</select>
+			</div>
 			<div class="setting">
 				<label for="bg-color">Background</label>
 				<input 

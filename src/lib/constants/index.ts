@@ -1,4 +1,4 @@
-import type { FontOption, TypingSettings } from '../types';
+import type { FontOption, TypingSettings, Theme } from '../types';
 
 export const AVAILABLE_FONTS: FontOption[] = [
 	{ name: 'Bitcount Grid Double', value: '"Bitcount Grid Double", monospace' },
@@ -20,6 +20,38 @@ export const DEFAULT_SOURCE_TEXT = `{
   }
 }`;
 
+export const AVAILABLE_THEMES: Theme[] = [
+	{
+		id: 'default',
+		name: 'Default',
+		previewWindow: {
+			type: 'default',
+			backgroundColor: '#0a0a0a',
+			textColor: '#ffffff',
+			borderRadius: 8,
+			boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.1)'
+		}
+	},
+	{
+		id: 'retro-term',
+		name: 'Retro Term',
+		previewWindow: {
+			type: 'editor',
+			backgroundColor: '#1e1e1e',
+			textColor: '#d4d4d4',
+			borderColor: '#3c3c3c',
+			borderRadius: 8,
+			boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+			editorTab: {
+				backgroundColor: '#2d2d30',
+				textColor: '#cccccc',
+				fileName: 'default.txt',
+				activeColor: '#007acc'
+			}
+		}
+	}
+];
+
 export const FACTORY_DEFAULTS: TypingSettings = {
 	backgroundColor: '#0a0a0a',
 	textColor: '#ffffff',
@@ -31,7 +63,8 @@ export const FACTORY_DEFAULTS: TypingSettings = {
 	cursorBlinkSpeed: 500,
 	soundEnabled: true,
 	typingSpeed: 50,
-	pauseBetweenLines: 200
+	pauseBetweenLines: 200,
+	currentTheme: 'default'
 };
 
 export const AUDIO_CONFIG = {

@@ -1,6 +1,6 @@
-import { writable } from 'svelte/store';
-import type { TypingSettings, TypingState } from '../types';
-import { FACTORY_DEFAULTS, DEFAULT_SOURCE_TEXT } from '../constants';
+import { writable, derived } from 'svelte/store';
+import type { TypingSettings, TypingState, Theme } from '../types';
+import { FACTORY_DEFAULTS, DEFAULT_SOURCE_TEXT, AVAILABLE_THEMES } from '../constants';
 
 // Settings store
 export const settings = writable<TypingSettings>({ ...FACTORY_DEFAULTS });
@@ -48,3 +48,8 @@ export const resetTypingState = () => {
 		currentCharIndex: 0
 	}));
 };
+
+// Derived store for current theme
+export const currentTheme = derived(settings, ($settings) => {
+	return AVAILABLE_THEMES.find(theme => theme.id === $settings.currentTheme) || AVAILABLE_THEMES[0];
+});

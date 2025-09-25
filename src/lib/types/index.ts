@@ -3,6 +3,33 @@ export interface FontOption {
 	value: string;
 }
 
+export interface Theme {
+	id: string;
+	name: string;
+	previewWindow: {
+		type: 'default' | 'terminal' | 'editor';
+		backgroundColor: string;
+		textColor: string;
+		borderColor?: string;
+		borderRadius?: number;
+		boxShadow?: string;
+		editorTab?: {
+			backgroundColor: string;
+			textColor: string;
+			fileName: string;
+			activeColor?: string;
+		};
+		terminalBar?: {
+			backgroundColor: string;
+			textColor: string;
+			buttons?: Array<{
+				color: string;
+				size: number;
+			}>;
+		};
+	};
+}
+
 export interface TypingSettings {
 	backgroundColor: string;
 	textColor: string;
@@ -15,6 +42,7 @@ export interface TypingSettings {
 	soundEnabled: boolean;
 	typingSpeed: number;
 	pauseBetweenLines: number;
+	currentTheme: string;
 }
 
 export interface TypingState {

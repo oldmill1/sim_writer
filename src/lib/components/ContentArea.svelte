@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { settings, typingState, updateTypingState } from '../stores';
+	import { settings, typingState, updateTypingState, currentTheme } from '../stores';
 
 	interface Props {
 		cursorElement: HTMLSpanElement | undefined;
@@ -9,9 +9,10 @@
 
 	let { isEditMode, sourceText, previewText } = $derived($typingState);
 	let { backgroundColor, textColor, fontSize, fontFamily, previewTextSize } = $derived($settings);
+	let theme = $derived($currentTheme);
 
-	let previewElement: HTMLDivElement;
-	let textareaElement: HTMLTextAreaElement;
+	let previewElement = $state<HTMLDivElement>();
+	let textareaElement = $state<HTMLTextAreaElement>();
 
 	function handleSourceTextChange(event: Event) {
 		const target = event.target as HTMLTextAreaElement;
@@ -35,16 +36,84 @@
 		></textarea>
 	{:else}
 		<!-- Preview Mode -->
-		<div 
-			bind:this={previewElement}
-			class="preview-screen"
-			style="background-color: {backgroundColor}; color: {textColor}; font-size: {previewTextSize}px; font-family: {fontFamily};"
-		>
-			<div class="preview-text">
-				{previewText}
-				<span bind:this={cursorElement} class="cursor">|</span>
+		{#if theme.previewWindow.type === 'editor'}
+			<!-- Editor Theme -->
+			<div 
+				bind:this={previewElement}
+				class="preview-screen editor-theme"
+				style="
+					background-color: {theme.previewWindow.backgroundColor}; 
+					color: {theme.previewWindow.textColor}; 
+					font-size: {previewTextSize}px; 
+					font-family: {fontFamily};
+					border: 1px solid {theme.previewWindow.borderColor || 'transparent'};
+					border-radius: {theme.previewWindow.borderRadius || 0}px;
+					box-shadow: {theme.previewWindow.boxShadow || 'none'};
+				"
+			>
+				{#if theme.previewWindow.editorTab}
+					<div class="editor-tab" style="background-color: {theme.previewWindow.editorTab.backgroundColor}; color: {theme.previewWindow.editorTab.textColor};">
+						<span class="tab-filename">{theme.previewWindow.editorTab.fileName}</span>
+						<div class="tab-close">×</div>
+					</div>
+				{/if}
+				<div class="preview-text">
+					{previewText}
+					<span bind:this={cursorElement} class="cursor">|</span>
+				</div>
 			</div>
-		</div>
+		{:else if theme.previewWindow.type === 'terminal'}
+			<!-- Terminal Theme -->
+			<div 
+				bind:this={previewElement}
+				class="preview-screen terminal-theme"
+				style="
+					background-color: {theme.previewWindow.backgroundColor}; 
+					color: {theme.previewWindow.textColor}; 
+					font-size: {previewTextSize}px; 
+					font-family: {fontFamily};
+					border: 1px solid {theme.previewWindow.borderColor || 'transparent'};
+					border-radius: {theme.previewWindow.borderRadius || 0}px;
+					box-shadow: {theme.previewWindow.boxShadow || 'none'};
+				"
+			>
+				{#if theme.previewWindow.terminalBar}
+					<div class="terminal-bar" style="background-color: {theme.previewWindow.terminalBar.backgroundColor}; color: {theme.previewWindow.terminalBar.textColor};">
+						<div class="terminal-buttons">
+							{#if theme.previewWindow.terminalBar.buttons}
+								{#each theme.previewWindow.terminalBar.buttons as button}
+									<div class="terminal-button" style="background-color: {button.color}; width: {button.size}px; height: {button.size}px;"></div>
+								{/each}
+							{/if}
+						</div>
+						<div class="terminal-title">Terminal</div>
+					</div>
+				{/if}
+				<div class="preview-text">
+					{previewText}
+					<span bind:this={cursorElement} class="cursor">|</span>
+				</div>
+			</div>
+		{:else}
+			<!-- Default Theme -->
+			<div 
+				bind:this={previewElement}
+				class="preview-screen default-theme"
+				style="
+					background-color: {theme.previewWindow.backgroundColor}; 
+					color: {theme.previewWindow.textColor}; 
+					font-size: {previewTextSize}px; 
+					font-family: {fontFamily};
+					border-radius: {theme.previewWindow.borderRadius || 0}px;
+					box-shadow: {theme.previewWindow.boxShadow || 'none'};
+				"
+			>
+				<div class="preview-text">
+					{previewText}
+					<span bind:this={cursorElement} class="cursor">|</span>
+				</div>
+			</div>
+		{/if}
 	{/if}
 </div>
 
@@ -81,6 +150,99 @@
 		overflow: auto;
 		position: relative;
 		box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	/* Editor Theme Styles */
+	.editor-theme {
+		display: flex;
+		flex-direction: column;
+		border: 1px solid #3c3c3c;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	.editor-tab {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 8px 12px;
+		border-bottom: 1px solid #3c3c3c;
+		font-size: 12px;
+		font-weight: 500;
+		min-height: 32px;
+	}
+
+	.tab-filename {
+		color: inherit;
+	}
+
+	.tab-close {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background-color: #5c5c5c;
+		color: #ffffff;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 12px;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+	}
+
+	.tab-close:hover {
+		background-color: #e81123;
+	}
+
+	.editor-theme .preview-text {
+		flex: 1;
+		padding: 16px;
+		position: relative;
+	}
+
+	/* Terminal Theme Styles */
+	.terminal-theme {
+		display: flex;
+		flex-direction: column;
+		border: 1px solid #3c3c3c;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	.terminal-bar {
+		display: flex;
+		align-items: center;
+		padding: 8px 12px;
+		border-bottom: 1px solid #3c3c3c;
+		font-size: 12px;
+		font-weight: 500;
+		min-height: 32px;
+	}
+
+	.terminal-buttons {
+		display: flex;
+		gap: 6px;
+		margin-right: 12px;
+	}
+
+	.terminal-button {
+		border-radius: 50%;
+		cursor: pointer;
+		transition: opacity 0.2s ease;
+	}
+
+	.terminal-button:hover {
+		opacity: 0.7;
+	}
+
+	.terminal-title {
+		flex: 1;
+		text-align: center;
+		color: inherit;
+	}
+
+	.terminal-theme .preview-text {
+		flex: 1;
+		padding: 16px;
+		position: relative;
 	}
 
 	.preview-text {
