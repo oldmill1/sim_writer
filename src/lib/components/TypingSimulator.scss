@@ -77,34 +77,44 @@ $warning-color: #d69e2e;     // Yellow
 	gap: 1rem;
 }
 
-.panels {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 2rem;
-	flex: 1;
+.mode-toggle {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 }
 
-.panel {
-	background: $bg-tertiary;
-	border-radius: 12px;
+.toggle-button {
+	background: transparent;
+	color: $text-secondary;
 	border: 1px solid $border-color;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	font-size: 0.9rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&.active {
+		background: $accent-primary;
+		color: $bg-primary;
+		border-color: $accent-primary;
+	}
+
+	&:hover:not(.active) {
+		color: $text-primary;
+		border-color: $text-secondary;
+	}
 }
 
-// Panel headers removed
-
-.panel-content {
+.content-area {
 	flex: 1;
-	padding: 1rem;
-	display: flex;
-	flex-direction: column;
+	position: relative;
 }
+
+// Panel styles removed - using single content area now
 
 .source-textarea {
-	flex: 1;
+	width: 100%;
+	height: 100%;
 	background: $bg-primary;
 	border: 1px solid $border-color;
 	border-radius: 8px;
@@ -124,12 +134,12 @@ $warning-color: #d69e2e;     // Yellow
 }
 
 .preview-screen {
-	flex: 1;
+	width: 100%;
+	height: 100%;
 	border-radius: 8px;
 	padding: 1rem;
 	overflow: auto;
 	position: relative;
-	min-height: 300px;
 	box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 

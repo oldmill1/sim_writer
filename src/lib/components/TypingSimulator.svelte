@@ -22,6 +22,7 @@
 	let typingTimeout: number;
 	let currentLineIndex = 0;
 	let currentCharIndex = 0;
+	let isEditMode = true;
 	
 	// Environment settings
 	let backgroundColor = '#0a0a0a';
@@ -223,6 +224,17 @@
 		}
 	}
 	
+	function toggleMode() {
+		if (isEditMode) {
+			// Switching to preview mode
+			isEditMode = false;
+		} else {
+			// Switching to edit mode - ALWAYS stop and restart animation
+			isEditMode = true;
+			restartAnimation();
+		}
+	}
+	
 	onMount(() => {
 		// Initialize audio - use path from static folder
 		typingAudio = new Audio('/assets/sounds/typing.mp3');
@@ -283,30 +295,41 @@
 	
 	<!-- Main Content -->
 	<div class="main-content">
-		<div class="panels">
-			<!-- Source Panel -->
-			<div class="panel source-panel">
-				<div class="panel-content">
-					<textarea 
-						bind:value={sourceText}
-						placeholder="Enter your code here..."
-						class="source-textarea"
-					></textarea>
+		<div class="mode-toggle">
+			<button 
+				class="toggle-button" 
+				class:active={isEditMode}
+				onclick={() => { if (!isEditMode) toggleMode(); }}
+			>
+				Edit
+			</button>
+			<button 
+				class="toggle-button" 
+				class:active={!isEditMode}
+				onclick={() => { if (isEditMode) toggleMode(); }}
+			>
+				Preview
+			</button>
+		</div>
+		
+		<div class="content-area">
+			<!-- Edit Mode -->
+			{#if isEditMode}
+				<textarea 
+					bind:value={sourceText}
+					placeholder="Enter your code here..."
+					class="source-textarea"
+				></textarea>
+			{:else}
+				<!-- Preview Mode -->
+				<div 
+					bind:this={previewElement}
+					class="preview-screen"
+					style="background-color: {backgroundColor}; color: {textColor}; font-size: {fontSize}; font-family: {fontFamily};"
+				>
+					<pre class="preview-text">{previewText}<span bind:this={cursorElement} class="cursor">|</span></pre>
 				</div>
-			</div>
-			
-			<!-- Preview Panel -->
-			<div class="panel preview-panel">
-				<div class="panel-content">
-					<div 
-						bind:this={previewElement}
-						class="preview-screen"
-						style="background-color: {backgroundColor}; color: {textColor}; font-size: {fontSize}; font-family: {fontFamily};"
-					>
-						<pre class="preview-text">{previewText}<span bind:this={cursorElement} class="cursor">|</span></pre>
-					</div>
-				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
 	
