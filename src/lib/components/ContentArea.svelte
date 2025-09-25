@@ -31,7 +31,7 @@
 			bind:value={sourceText}
 			placeholder="Enter your code here..."
 			class="source-textarea"
-			style="font-family: {fontFamily};"
+			style="font-family: {fontFamily}; font-size: {fontSize};"
 		></textarea>
 	{:else}
 		<!-- Preview Mode -->
@@ -63,7 +63,6 @@
 		padding: 1rem;
 		color: #e2e8f0;
 		font-family: 'Monaco', 'Courier New', monospace;
-		font-size: 16px;
 		line-height: 1.5;
 		resize: none;
 		outline: none;

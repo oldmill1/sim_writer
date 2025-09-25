@@ -26,6 +26,7 @@ export interface TypingState {
 	currentCharIndex: number;
 	isEditMode: boolean;
 	settingsOpen: boolean;
+	isFullscreen: boolean;
 }
 
 export interface TypingRefs {

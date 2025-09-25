@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { settings, typingState, updateSetting, resetSettings } from '../stores';
+	import { AVAILABLE_FONTS } from '../constants';
 	import type { TypingEngine } from '../utils/TypingEngine';
 
 	interface Props {
@@ -9,7 +10,7 @@
 	let { typingEngine }: Props = $props();
 
 	let { settingsOpen, isTyping } = $derived($typingState);
-	let { backgroundColor, textColor, fontSizeValue, fontSize, typingSpeed, soundEnabled } = $derived($settings);
+	let { backgroundColor, textColor, fontSizeValue, fontSize, fontFamily, previewTextSize, typingSpeed, soundEnabled } = $derived($settings);
 
 	function closeSettings() {
 		typingState.update(current => ({ ...current, settingsOpen: false }));
@@ -31,11 +32,14 @@
 		updateSetting('textColor', target.value);
 	}
 
-	function handleFontSizeChange(event: Event) {
+	function handleFontFamilyChange(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		updateSetting('fontFamily', target.value);
+	}
+
+	function handlePreviewTextSizeChange(event: Event) {
 		const target = event.target as HTMLInputElement;
-		const value = parseInt(target.value);
-		updateSetting('fontSizeValue', value);
-		updateSetting('fontSize', `${value}px`);
+		updateSetting('previewTextSize', parseInt(target.value));
 	}
 
 	function handleTypingSpeedChange(event: Event) {
@@ -107,16 +111,28 @@
 				>
 			</div>
 			<div class="setting">
-				<label for="font-size">Font Size</label>
+				<label for="font-family">Font Family</label>
+				<select 
+					id="font-family" 
+					value={fontFamily}
+					onchange={handleFontFamilyChange}
+				>
+					{#each AVAILABLE_FONTS as font}
+						<option value={font.value}>{font.name}</option>
+					{/each}
+				</select>
+			</div>
+			<div class="setting">
+				<label for="preview-text-size">Preview Text Size</label>
 				<input 
 					type="range" 
-					id="font-size" 
-					min="10" 
-					max="24" 
-					value={fontSizeValue}
-					onchange={handleFontSizeChange}
+					id="preview-text-size" 
+					min="8" 
+					max="50" 
+					value={previewTextSize}
+					onchange={handlePreviewTextSizeChange}
 				>
-				<span>{fontSize}</span>
+				<span>{previewTextSize}px</span>
 			</div>
 			<div class="setting">
 				<label for="typing-speed">Speed</label>
@@ -317,6 +333,36 @@
 	.setting input[type="checkbox"] {
 		accent-color: #4a5568;
 		transform: scale(1.2);
+	}
+
+	.setting select {
+		width: 100%;
+		height: 40px;
+		background: #1a1a1a;
+		color: #e2e8f0;
+		border: 1px solid #2d3748;
+		border-radius: 6px;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.9rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.setting select:hover {
+		border-color: #718096;
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	.setting select:focus {
+		outline: none;
+		border-color: #4a5568;
+		box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.1);
+	}
+
+	.setting select option {
+		background: #1a1a1a;
+		color: #e2e8f0;
+		padding: 0.5rem;
 	}
 
 	.setting span {

@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { settings, typingState } from '../stores';
+	import { settings, typingState, updateTypingState } from '../stores';
 	import { TypingEngine } from '../utils/TypingEngine';
 	import { AudioManager } from '../utils/AudioManager';
 	import Header from './Header.svelte';
-	import ControlsWrapper from './ControlsWrapper.svelte';
 	import ContentArea from './ContentArea.svelte';
 	import SettingsDrawer from './SettingsDrawer.svelte';
 	import './TypingSimulator.scss';
@@ -33,9 +32,89 @@
 			audioManager?.setEnabled(currentSettings.soundEnabled);
 		});
 
+		// Keyboard event listener for shortcuts
+		function handleKeydown(event: KeyboardEvent) {
+			// Only work in preview mode
+			if (!$typingState.isEditMode) {
+				const key = event.key.toLowerCase();
+				
+				switch (key) {
+					case 'f':
+						// Fullscreen shortcut - only when not typing
+						if (!$typingState.isTyping) {
+							event.preventDefault();
+							toggleFullscreen();
+						}
+						break;
+					case 'r':
+						// Restart shortcut
+						event.preventDefault();
+						if (typingEngine) {
+							typingEngine.restartAnimation();
+						}
+						break;
+					case 'p':
+						// Play/Pause shortcut
+						event.preventDefault();
+						if (typingEngine) {
+							const state = $typingState;
+							const settingsValue = $settings;
+							
+							// Use simulateTyping for play/pause functionality
+							typingEngine.simulateTyping(state.sourceText, settingsValue, state);
+						}
+						break;
+				}
+			}
+		}
+
+		document.addEventListener('keydown', handleKeydown);
+
 		return () => {
 			unsubscribeSettings();
 			audioManager?.destroy();
+			document.removeEventListener('keydown', handleKeydown);
+		};
+	});
+
+	// Fullscreen functionality
+	async function toggleFullscreen() {
+		if (!document.fullscreenElement) {
+			// Enter fullscreen
+			try {
+				await document.documentElement.requestFullscreen();
+				updateTypingState('isFullscreen', true);
+				
+				// Start typing animation after entering fullscreen
+				if (typingEngine) {
+					const state = $typingState;
+					const settingsValue = $settings;
+					typingEngine.simulateTyping(state.sourceText, settingsValue, state);
+				}
+			} catch (error) {
+				console.error('Error entering fullscreen:', error);
+			}
+		} else {
+			// Exit fullscreen
+			try {
+				await document.exitFullscreen();
+				updateTypingState('isFullscreen', false);
+			} catch (error) {
+				console.error('Error exiting fullscreen:', error);
+			}
+		}
+	}
+
+	// Listen for fullscreen changes
+	onMount(() => {
+		function handleFullscreenChange() {
+			updateTypingState('isFullscreen', !!document.fullscreenElement);
+		}
+
+		document.addEventListener('fullscreenchange', handleFullscreenChange);
+		
+		return () => {
+			document.removeEventListener('fullscreenchange', handleFullscreenChange);
 		};
 	});
 
@@ -70,16 +149,19 @@
 	});
 </script>
 
-<div class="container">
+<div class="container" class:fullscreen={$typingState.isFullscreen}>
 	{#if typingEngine}
-		<Header {typingEngine} />
+		{#if !$typingState.isFullscreen}
+			<Header {typingEngine} />
+		{/if}
 		
 		<div class="main-content">
-			<ControlsWrapper {typingEngine} />
 			<ContentArea bind:cursorElement />
 		</div>
 		
-		<SettingsDrawer {typingEngine} />
+		{#if !$typingState.isFullscreen}
+			<SettingsDrawer {typingEngine} />
+		{/if}
 	{/if}
 </div>
 
@@ -93,6 +175,15 @@
 		font-family: 'SF Pro Display', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	}
 
+	.container.fullscreen {
+		height: 100vh;
+		width: 100vw;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 9999;
+	}
+
 	.main-content {
 		flex: 1;
 		padding: 2rem;
@@ -101,9 +192,19 @@
 		gap: 1rem;
 	}
 
+	.container.fullscreen .main-content {
+		padding: 2rem;
+		height: calc(100vh - 4rem);
+	}
+
 	@media (max-width: 768px) {
 		.main-content {
 			padding: 1rem;
+		}
+		
+		.container.fullscreen .main-content {
+			padding: 1rem;
+			height: calc(100vh - 2rem);
 		}
 	}
 </style>

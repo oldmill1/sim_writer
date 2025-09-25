@@ -22,11 +22,11 @@ export const DEFAULT_SOURCE_TEXT = `{
 
 export const FACTORY_DEFAULTS: TypingSettings = {
 	backgroundColor: '#0a0a0a',
-	textColor: '#4a5568',
-	fontSizeValue: 14,
-	fontSize: '14px',
+	textColor: '#ffffff',
+	fontSizeValue: 20,
+	fontSize: '20px',
 	fontFamily: AVAILABLE_FONTS[4].value, // Source Code Pro
-	previewTextSize: 12,
+	previewTextSize: 20,
 	cursorVisible: true,
 	cursorBlinkSpeed: 500,
 	soundEnabled: true,

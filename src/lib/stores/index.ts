@@ -14,7 +14,8 @@ export const typingState = writable<TypingState>({
 	currentLineIndex: 0,
 	currentCharIndex: 0,
 	isEditMode: true,
-	settingsOpen: false
+	settingsOpen: false,
+	isFullscreen: false
 });
 
 // Helper functions for settings
