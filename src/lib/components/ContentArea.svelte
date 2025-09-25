@@ -40,24 +40,25 @@
 			<!-- Editor Theme -->
 			<div 
 				bind:this={previewElement}
-				class="preview-screen editor-theme"
+				class="preview-screen editor-theme aqua-editor"
 				style="
-					background-color: {theme.previewWindow.backgroundColor}; 
 					color: {theme.previewWindow.textColor}; 
 					font-size: {previewTextSize}px; 
 					font-family: {fontFamily};
-					border: 1px solid {theme.previewWindow.borderColor || 'transparent'};
-					border-radius: {theme.previewWindow.borderRadius || 0}px;
-					box-shadow: {theme.previewWindow.boxShadow || 'none'};
 				"
 			>
-				{#if theme.previewWindow.editorTab}
-					<div class="editor-tab" style="background-color: {theme.previewWindow.editorTab.backgroundColor}; color: {theme.previewWindow.editorTab.textColor};">
-						<span class="tab-filename">{theme.previewWindow.editorTab.fileName}</span>
-						<div class="tab-close">×</div>
-					</div>
-				{/if}
-				<div class="preview-text">
+		{#if theme.previewWindow.editorTab}
+			<div class="editor-tab aqua-tab">
+				<div class="traffic-lights">
+					<div class="traffic-light close"></div>
+					<div class="traffic-light minimize"></div>
+					<div class="traffic-light maximize"></div>
+				</div>
+				<span class="tab-filename">{theme.previewWindow.editorTab.fileName}</span>
+				<div class="tab-spacer"></div>
+			</div>
+		{/if}
+				<div class="preview-text aqua-content">
 					{previewText}
 					<span bind:this={cursorElement} class="cursor">|</span>
 				</div>
@@ -152,51 +153,178 @@
 		box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
-	/* Editor Theme Styles */
+	/* Editor Theme Styles - Classic Mac OS X Aqua Window */
 	.editor-theme {
 		display: flex;
 		flex-direction: column;
-		border: 1px solid #3c3c3c;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		border: 1px solid #8e8e8e;
+		border-radius: 12px;
+		box-shadow: 
+			0 4px 20px rgba(0, 0, 0, 0.3),
+			inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		background: #ffffff;
+		overflow: hidden;
+		position: relative;
 	}
 
 	.editor-tab {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
 		padding: 8px 12px;
-		border-bottom: 1px solid #3c3c3c;
+		background: linear-gradient(to bottom, #e0e0e0 0%, #d0d0d0 100%);
+		border-bottom: 1px solid #b0b0b0;
 		font-size: 12px;
-		font-weight: 500;
-		min-height: 32px;
+		font-weight: 600;
+		min-height: 28px;
+		position: relative;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+	}
+
+	.editor-tab::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.9) 50%, transparent 100%);
+	}
+
+	.traffic-lights {
+		display: flex;
+		gap: 6px;
+		margin-right: 12px;
+	}
+
+	.traffic-light {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: all 0.15s ease;
+		position: relative;
+		box-shadow: 
+			inset 0 1px 0 rgba(255, 255, 255, 0.4),
+			0 1px 2px rgba(0, 0, 0, 0.2);
+	}
+
+	.traffic-light.close {
+		background: radial-gradient(circle at 30% 30%, #ff5f56, #ff3b30);
+		border: 1px solid #d32f2f;
+	}
+
+	.traffic-light.close::before {
+		content: '×';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: #000000;
+		font-size: 7px;
+		font-weight: bold;
+		opacity: 0.6;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+	}
+
+	.traffic-light.minimize {
+		background: radial-gradient(circle at 30% 30%, #ffbd2e, #ffa500);
+		border: 1px solid #e6a700;
+	}
+
+	.traffic-light.minimize::before {
+		content: '−';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: #000000;
+		font-size: 8px;
+		font-weight: bold;
+		opacity: 0.6;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+	}
+
+	.traffic-light.maximize {
+		background: radial-gradient(circle at 30% 30%, #28ca42, #20a035);
+		border: 1px solid #1e8b2e;
+	}
+
+	.traffic-light.maximize::before {
+		content: '+';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: #000000;
+		font-size: 7px;
+		font-weight: bold;
+		opacity: 0.6;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+	}
+
+	.traffic-light:hover {
+		transform: scale(1.05);
+		box-shadow: 
+			inset 0 1px 0 rgba(255, 255, 255, 0.4),
+			0 2px 4px rgba(0, 0, 0, 0.3);
+	}
+
+	.traffic-light:hover::before {
+		opacity: 0.8;
+	}
+
+	.traffic-light:active {
+		transform: scale(0.95);
+		box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 	}
 
 	.tab-filename {
-		color: inherit;
+		color: #000000;
+		font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+		font-weight: 600;
+		flex: 1;
+		text-align: center;
 	}
 
-	.tab-close {
-		width: 16px;
-		height: 16px;
-		border-radius: 50%;
-		background-color: #5c5c5c;
-		color: #ffffff;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 12px;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.tab-close:hover {
-		background-color: #e81123;
+	.tab-spacer {
+		width: 60px; /* Same width as traffic lights to center the title */
 	}
 
 	.editor-theme .preview-text {
 		flex: 1;
-		padding: 16px;
+		padding: 24px 32px !important;
 		position: relative;
+		background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
+		font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+		line-height: 1.5;
+		color: #000000;
+		margin: 0 !important;
+	}
+
+	/* Aqua-specific styling */
+	.aqua-editor {
+		background: #ffffff !important;
+		border: 1px solid #8e8e8e !important;
+		border-radius: 12px !important;
+		box-shadow: 
+			0 4px 20px rgba(0, 0, 0, 0.3),
+			inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+	}
+
+	.aqua-tab {
+		background: linear-gradient(to bottom, #e0e0e0 0%, #d0d0d0 100%) !important;
+		border-bottom: 1px solid #b0b0b0 !important;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+	}
+
+	.aqua-content {
+		background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%) !important;
+		font-family: 'Monaco', 'Menlo', 'Courier New', monospace !important;
+		line-height: 1.5 !important;
+		padding: 24px 32px !important;
+		color: #000000 !important;
+		margin: 0 !important;
 	}
 
 	/* Terminal Theme Styles */

@@ -22,32 +22,32 @@ export const DEFAULT_SOURCE_TEXT = `{
 
 export const AVAILABLE_THEMES: Theme[] = [
 	{
-		id: 'default',
-		name: 'Default',
+		id: 'retro-term',
+		name: 'Retro Term',
+		previewWindow: {
+			type: 'editor',
+			backgroundColor: '#ffffff',
+			textColor: '#000000',
+			borderColor: '#8e8e8e',
+			borderRadius: 12,
+			boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+			editorTab: {
+				backgroundColor: 'linear-gradient(to bottom, #e0e0e0 0%, #d0d0d0 100%)',
+				textColor: '#000000',
+				fileName: 'default.txt',
+				activeColor: '#4a90e2'
+			}
+		}
+	},
+	{
+		id: 'blank',
+		name: 'Blank',
 		previewWindow: {
 			type: 'default',
 			backgroundColor: '#0a0a0a',
 			textColor: '#ffffff',
 			borderRadius: 8,
 			boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.1)'
-		}
-	},
-	{
-		id: 'retro-term',
-		name: 'Retro Term',
-		previewWindow: {
-			type: 'editor',
-			backgroundColor: '#1e1e1e',
-			textColor: '#d4d4d4',
-			borderColor: '#3c3c3c',
-			borderRadius: 8,
-			boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-			editorTab: {
-				backgroundColor: '#2d2d30',
-				textColor: '#cccccc',
-				fileName: 'default.txt',
-				activeColor: '#007acc'
-			}
 		}
 	}
 ];
@@ -64,7 +64,7 @@ export const FACTORY_DEFAULTS: TypingSettings = {
 	soundEnabled: true,
 	typingSpeed: 50,
 	pauseBetweenLines: 200,
-	currentTheme: 'default'
+	currentTheme: 'retro-term'
 };
 
 export const AUDIO_CONFIG = {
