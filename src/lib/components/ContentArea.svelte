@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { settings, typingState, updateTypingState, currentTheme } from '../stores';
+	import Prism from 'prismjs';
+	import 'prismjs/components/prism-json';
 
 	interface Props {
 		cursorElement: HTMLSpanElement | undefined;
@@ -21,6 +23,15 @@
 
 	function handleCursorRef(element: HTMLSpanElement) {
 		cursorElement = element;
+	}
+
+	// Prism.js syntax highlighting function
+	function highlightWithPrism(text: string): string {
+		if (!text) return '';
+		
+		// Use Prism.js to highlight JSON
+		const highlighted = Prism.highlight(text, Prism.languages.json, 'json');
+		return highlighted;
 	}
 </script>
 
@@ -59,7 +70,11 @@
 			</div>
 		{/if}
 				<div class="preview-text aqua-content">
-					{previewText}
+					{#if theme.id === 'retro-term'}
+						{@html highlightWithPrism(previewText)}
+					{:else}
+						{previewText}
+					{/if}
 					<span bind:this={cursorElement} class="cursor">|</span>
 				</div>
 			</div>
@@ -325,6 +340,38 @@
 		padding: 24px 32px !important;
 		color: #000000 !important;
 		margin: 0 !important;
+	}
+
+	/* Prism.js JSON Syntax Highlighting - Mac OS X Aqua Theme */
+	:global(.token.property) {
+		color: #0066cc !important;
+		font-weight: 600 !important;
+	}
+
+	:global(.token.string) {
+		color: #009900 !important;
+	}
+
+	:global(.token.number) {
+		color: #cc6600 !important;
+	}
+
+	:global(.token.boolean) {
+		color: #990099 !important;
+		font-weight: 600 !important;
+	}
+
+	:global(.token.punctuation) {
+		color: #666666 !important;
+	}
+
+	:global(.token.operator) {
+		color: #666666 !important;
+	}
+
+	:global(.token.bracket) {
+		color: #000000 !important;
+		font-weight: bold !important;
 	}
 
 	/* Terminal Theme Styles */
