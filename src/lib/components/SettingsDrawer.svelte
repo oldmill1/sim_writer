@@ -10,7 +10,7 @@
 	let { typingEngine }: Props = $props();
 
 	let { settingsOpen, isTyping } = $derived($typingState);
-	let { backgroundColor, textColor, fontSizeValue, fontSize, fontFamily, previewTextSize, typingSpeed, soundEnabled, currentTheme: selectedTheme } = $derived($settings);
+	let { fontSizeValue, fontSize, fontFamily, previewTextSize, typingSpeed, soundEnabled, currentTheme: selectedTheme } = $derived($settings);
 	let theme = $derived($currentTheme);
 
 	function closeSettings() {
@@ -21,16 +21,6 @@
 		if (event.key === 'Escape') {
 			closeSettings();
 		}
-	}
-
-	function handleBackgroundColorChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		updateSetting('backgroundColor', target.value);
-	}
-
-	function handleTextColorChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		updateSetting('textColor', target.value);
 	}
 
 	function handleFontFamilyChange(event: Event) {
@@ -109,24 +99,6 @@
 						<option value={themeOption.id}>{themeOption.name}</option>
 					{/each}
 				</select>
-			</div>
-			<div class="setting">
-				<label for="bg-color">Background</label>
-				<input 
-					type="color" 
-					id="bg-color" 
-					value={backgroundColor}
-					onchange={handleBackgroundColorChange}
-				>
-			</div>
-			<div class="setting">
-				<label for="text-color">Text Color</label>
-				<input 
-					type="color" 
-					id="text-color" 
-					value={textColor}
-					onchange={handleTextColorChange}
-				>
 			</div>
 			<div class="setting">
 				<label for="font-family">Font Family</label>

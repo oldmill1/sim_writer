@@ -2,6 +2,17 @@
 	import { settings, typingState, updateTypingState, currentTheme } from '../stores';
 	import Prism from 'prismjs';
 	import 'prismjs/components/prism-json';
+	import 'prismjs/components/prism-javascript';
+	import 'prismjs/components/prism-typescript';
+	import 'prismjs/components/prism-jsx';
+	import 'prismjs/components/prism-tsx';
+	import 'prismjs/components/prism-css';
+	import 'prismjs/components/prism-python';
+	import 'prismjs/components/prism-java';
+	import 'prismjs/components/prism-markdown';
+	import 'prismjs/components/prism-markup';
+	import 'prismjs/components/prism-xml-doc';
+	import 'prismjs/components/prism-yaml';
 
 	interface Props {
 		cursorElement: HTMLSpanElement | undefined;
@@ -9,12 +20,17 @@
 
 	let { cursorElement = $bindable() }: Props = $props();
 
-	let { isEditMode, sourceText, previewText } = $derived($typingState);
+	let { isEditMode, title, sourceText, previewText } = $derived($typingState);
 	let { backgroundColor, textColor, fontSize, fontFamily, previewTextSize } = $derived($settings);
 	let theme = $derived($currentTheme);
 
 	let previewElement = $state<HTMLDivElement>();
 	let textareaElement = $state<HTMLTextAreaElement>();
+
+	function handleTitleChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		updateTypingState('title', target.value);
+	}
 
 	function handleSourceTextChange(event: Event) {
 		const target = event.target as HTMLTextAreaElement;
@@ -25,19 +41,68 @@
 		cursorElement = element;
 	}
 
+	// File type detection based on title extension
+	function getFileTypeFromTitle(title: string): string {
+		if (!title) return 'txt';
+		
+		const extension = title.split('.').pop()?.toLowerCase();
+		
+		const typeMap: Record<string, string> = {
+			'json': 'json',
+			'js': 'javascript',
+			'jsx': 'jsx',
+			'ts': 'typescript',
+			'tsx': 'tsx',
+			'css': 'css',
+			'py': 'python',
+			'java': 'java',
+			'cpp': 'javascript',
+			'c': 'javascript',
+			'h': 'javascript',
+			'hpp': 'javascript',
+			'txt': 'txt',
+			'md': 'markdown',
+			'html': 'markup',
+			'xml': 'xml',
+			'yaml': 'yaml',
+			'yml': 'yaml'
+		};
+		
+		return typeMap[extension || ''] || 'txt';
+	}
+
+	// Get display filename (use title or fallback to default)
+	function getDisplayFilename(): string {
+		return title.trim() || 'default.txt';
+	}
+
 	// Prism.js syntax highlighting function
 	function highlightWithPrism(text: string): string {
 		if (!text) return '';
 		
-		// Use Prism.js to highlight JSON
-		const highlighted = Prism.highlight(text, Prism.languages.json, 'json');
-		return highlighted;
+		const fileType = getFileTypeFromTitle(title);
+		const language = Prism.languages[fileType];
+		
+		if (language) {
+			return Prism.highlight(text, language, fileType);
+		}
+		
+		// Fallback to plain text
+		return text;
 	}
 </script>
 
 <div class="content-area">
 	<!-- Edit Mode -->
 	{#if isEditMode}
+		<input 
+			type="text"
+			bind:value={title}
+			placeholder="Enter title..."
+			class="title-input"
+			style="font-family: {fontFamily}; font-size: {fontSize};"
+			oninput={handleTitleChange}
+		/>
 		<textarea 
 			bind:this={textareaElement}
 			bind:value={sourceText}
@@ -65,12 +130,12 @@
 					<div class="traffic-light minimize"></div>
 					<div class="traffic-light maximize"></div>
 				</div>
-				<span class="tab-filename">{theme.previewWindow.editorTab.fileName}</span>
+				<span class="tab-filename">{getDisplayFilename()}</span>
 				<div class="tab-spacer"></div>
 			</div>
 		{/if}
 				<div class="preview-text aqua-content">
-					{#if theme.id === 'retro-term'}
+					{#if getFileTypeFromTitle(title) !== 'txt'}
 						{@html highlightWithPrism(previewText)}
 					{:else}
 						{previewText}
@@ -106,7 +171,11 @@
 					</div>
 				{/if}
 				<div class="preview-text">
-					{previewText}
+					{#if getFileTypeFromTitle(title) !== 'txt'}
+						{@html highlightWithPrism(previewText)}
+					{:else}
+						{previewText}
+					{/if}
 					<span bind:this={cursorElement} class="cursor">|</span>
 				</div>
 			</div>
@@ -125,7 +194,11 @@
 				"
 			>
 				<div class="preview-text">
-					{previewText}
+					{#if getFileTypeFromTitle(title) !== 'txt'}
+						{@html highlightWithPrism(previewText)}
+					{:else}
+						{previewText}
+					{/if}
 					<span bind:this={cursorElement} class="cursor">|</span>
 				</div>
 			</div>
@@ -139,9 +212,34 @@
 		position: relative;
 	}
 
+	.title-input {
+		width: 100%;
+		background: #0a0a0a;
+		border: 1px solid #2d3748;
+		border-radius: 8px;
+		padding: 0.75rem 1rem;
+		color: #e2e8f0;
+		font-family: 'SF Pro Display', 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		font-size: 1rem;
+		font-weight: 500;
+		margin-bottom: 1rem;
+		outline: none;
+		transition: border-color 0.2s ease;
+	}
+
+	.title-input:focus {
+		border-color: #4a5568;
+		box-shadow: 0 0 0 2px rgba(203, 166, 247, 0.1);
+	}
+
+	.title-input::placeholder {
+		color: #718096;
+		font-weight: 400;
+	}
+
 	.source-textarea {
 		width: 100%;
-		height: 100%;
+		height: calc(100% - 4rem);
 		background: #0a0a0a;
 		border: 1px solid #2d3748;
 		border-radius: 8px;

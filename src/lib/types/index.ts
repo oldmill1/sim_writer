@@ -46,6 +46,7 @@ export interface TypingSettings {
 }
 
 export interface TypingState {
+	title: string;
 	sourceText: string;
 	previewText: string;
 	isTyping: boolean;

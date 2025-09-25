@@ -7,6 +7,7 @@ export const settings = writable<TypingSettings>({ ...FACTORY_DEFAULTS });
 
 // Typing state store
 export const typingState = writable<TypingState>({
+	title: '',
 	sourceText: DEFAULT_SOURCE_TEXT,
 	previewText: '',
 	isTyping: false,
