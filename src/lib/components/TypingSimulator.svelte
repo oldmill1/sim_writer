@@ -15,9 +15,13 @@
 	
 	let previewText = '';
 	let isTyping = false;
+	let isPaused = false;
 	let typingSpeed = 50; // milliseconds per character
 	let pauseBetweenLines = 200; // milliseconds
 	let settingsOpen = false;
+	let typingTimeout: number;
+	let currentLineIndex = 0;
+	let currentCharIndex = 0;
 	
 	// Environment settings
 	let backgroundColor = '#0a0a0a';
@@ -54,50 +58,86 @@
 	
 	// Typing simulation
 	async function simulateTyping() {
-		if (isTyping) return;
+		if (isTyping && !isPaused) {
+			// PAUSE: Stop everything
+			isPaused = true;
+			stopTypingSound();
+			return;
+		}
 		
+		if (isPaused) {
+			// RESUME: Continue from where we left off
+			isPaused = false;
+			startTypingSound();
+			return;
+		}
+		
+		// START: Begin new animation from beginning
 		isTyping = true;
+		isPaused = false;
 		previewText = '';
+		currentLineIndex = 0;
+		currentCharIndex = 0;
 		
-		// Start cursor blinking
 		startCursorBlinking();
-		
-		// Start typing sound
 		startTypingSound();
 		
 		const lines = sourceText.split('\n');
-		let totalCharacters = 0;
-		
-		// Calculate total characters for sound timing
-		for (const line of lines) {
-			totalCharacters += line.length;
-		}
 		
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
 			
-			// Type each character in the line
 			for (let j = 0; j < line.length; j++) {
+				// Check if paused
+				if (isPaused) {
+					currentLineIndex = i;
+					currentCharIndex = j;
+					await waitForResume();
+				}
+				
+				// Check if stopped
+				if (!isTyping) break;
+				
 				previewText += line[j];
 				
-				// Add some randomness to typing speed
 				const randomDelay = typingSpeed + Math.random() * 20 - 10;
-				await new Promise(resolve => setTimeout(resolve, randomDelay));
+				await new Promise(resolve => {
+					typingTimeout = setTimeout(resolve, randomDelay);
+				});
 			}
+			
+			// Check if stopped
+			if (!isTyping) break;
 			
 			// Add newline if not the last line
 			if (i < lines.length - 1) {
 				previewText += '\n';
 				
-				// Pause between lines (longer pause for empty lines)
 				const pauseTime = line.trim() === '' ? pauseBetweenLines * 2 : pauseBetweenLines;
-				await new Promise(resolve => setTimeout(resolve, pauseTime));
+				await new Promise(resolve => {
+					typingTimeout = setTimeout(resolve, pauseTime);
+				});
 			}
 		}
 		
 		isTyping = false;
+		isPaused = false;
 		stopCursorBlinking();
 		stopTypingSound();
+	}
+	
+	// Wait for resume when paused
+	async function waitForResume() {
+		return new Promise<void>((resolve) => {
+			const checkResume = () => {
+				if (!isPaused) {
+					resolve();
+				} else {
+					setTimeout(checkResume, 100);
+				}
+			};
+			checkResume();
+		});
 	}
 	
 	function startCursorBlinking() {
@@ -119,8 +159,18 @@
 	
 	function startTypingSound() {
 		if (typingAudio && soundEnabled) {
+			// Reset to beginning
 			typingAudio.currentTime = 0;
-			typingAudio.play().catch(console.error);
+			
+			// Try to play, handle autoplay restrictions
+			const playPromise = typingAudio.play();
+			if (playPromise !== undefined) {
+				playPromise.catch(error => {
+					console.log('Autoplay prevented:', error);
+					console.log('User interaction required to play audio');
+					// Don't show error to user, just log it
+				});
+			}
 		}
 	}
 	
@@ -147,25 +197,56 @@
 	function clearPreview() {
 		previewText = '';
 		isTyping = false;
+		isPaused = false;
 		stopCursorBlinking();
 		stopTypingSound();
+		
+		// Clear any pending timeouts
+		if (typingTimeout) {
+			clearTimeout(typingTimeout);
+		}
+	}
+	
+	function restartAnimation() {
+		// STOP everything and reset to beginning
+		previewText = '';
+		isTyping = false;
+		isPaused = false;
+		currentLineIndex = 0;
+		currentCharIndex = 0;
+		stopCursorBlinking();
+		stopTypingSound();
+		
+		// Clear any pending timeouts
+		if (typingTimeout) {
+			clearTimeout(typingTimeout);
+		}
 	}
 	
 	onMount(() => {
-		// Initialize audio - use relative path from public folder
+		// Initialize audio - use path from static folder
 		typingAudio = new Audio('/assets/sounds/typing.mp3');
 		typingAudio.loop = true;
 		typingAudio.volume = 0.3; // Set a reasonable volume
+		typingAudio.preload = 'auto';
 		
 		// Add error handling
 		typingAudio.addEventListener('error', (e) => {
 			console.error('Audio loading error:', e);
 			console.log('Trying to load from: /assets/sounds/typing.mp3');
+			console.log('Audio error details:', typingAudio.error);
 		});
 		
 		typingAudio.addEventListener('canplaythrough', () => {
 			console.log('Audio loaded successfully');
 		});
+		
+		typingAudio.addEventListener('loadstart', () => {
+			console.log('Audio loading started');
+		});
+		
+		// Try to load the audio
+		typingAudio.load();
 		
 		return () => {
 			stopCursorBlinking();
@@ -182,9 +263,14 @@
 			<button 
 				class="run-button" 
 				onclick={simulateTyping}
-				disabled={isTyping}
 			>
-				{isTyping ? '⏸️' : '🚀'}
+				{isTyping ? (isPaused ? '▶️' : '⏸️') : '🚀'}
+			</button>
+			<button 
+				class="restart-button" 
+				onclick={restartAnimation}
+			>
+				🔄
 			</button>
 			<button 
 				class="settings-toggle" 
