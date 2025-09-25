@@ -10,7 +10,7 @@
 	let { typingEngine }: Props = $props();
 
 	let { isEditMode } = $derived($typingState);
-	let { fontFamily } = $derived($settings);
+	let { fontFamily, previewTextSize } = $derived($settings);
 
 	function handleModeToggle(newMode: boolean) {
 		if (newMode !== isEditMode) {
@@ -25,6 +25,11 @@
 	function handleFontChange(event: Event) {
 		const target = event.target as HTMLSelectElement;
 		updateSetting('fontFamily', target.value);
+	}
+
+	function handleTextSizeChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		updateSetting('previewTextSize', parseInt(target.value));
 	}
 </script>
 
@@ -54,6 +59,18 @@
 			<option value={font.value}>{font.name}</option>
 		{/each}
 	</select>
+	<div class="text-size-control">
+		<span class="size-label">S</span>
+		<input 
+			type="range"
+			class="text-size-slider" 
+			min="8"
+			max="50"
+			value={previewTextSize}
+			oninput={handleTextSizeChange}
+		/>
+		<span class="size-label">L</span>
+	</div>
 </div>
 
 <style>
@@ -119,5 +136,62 @@
 		background: #1a1a1a;
 		color: #e2e8f0;
 		padding: 0.5rem;
+	}
+
+	.text-size-control {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-width: 120px;
+	}
+
+	.size-label {
+		color: #718096;
+		font-size: 0.8rem;
+		font-weight: 600;
+		min-width: 12px;
+		text-align: center;
+	}
+
+	.text-size-slider {
+		flex: 1;
+		height: 6px;
+		background: #2d3748;
+		border-radius: 3px;
+		outline: none;
+		cursor: pointer;
+		-webkit-appearance: none;
+		appearance: none;
+	}
+
+	.text-size-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 16px;
+		height: 16px;
+		background: #4a5568;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.text-size-slider::-webkit-slider-thumb:hover {
+		background: #718096;
+		transform: scale(1.1);
+	}
+
+	.text-size-slider::-moz-range-thumb {
+		width: 16px;
+		height: 16px;
+		background: #4a5568;
+		border-radius: 50%;
+		cursor: pointer;
+		border: none;
+		transition: all 0.2s ease;
+	}
+
+	.text-size-slider::-moz-range-thumb:hover {
+		background: #718096;
+		transform: scale(1.1);
 	}
 </style>

@@ -15,6 +15,12 @@
 		if (!typingEngine) return;
 		const state = $typingState;
 		const settingsValue = $settings;
+		
+		// If in edit mode, automatically switch to preview mode
+		if (state.isEditMode) {
+			typingState.update(current => ({ ...current, isEditMode: false }));
+		}
+		
 		// Don't await - let it run in background
 		typingEngine.simulateTyping(state.sourceText, settingsValue, state);
 	}

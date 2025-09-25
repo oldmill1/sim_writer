@@ -8,7 +8,7 @@
 	let { cursorElement = $bindable() }: Props = $props();
 
 	let { isEditMode, sourceText, previewText } = $derived($typingState);
-	let { backgroundColor, textColor, fontSize, fontFamily } = $derived($settings);
+	let { backgroundColor, textColor, fontSize, fontFamily, previewTextSize } = $derived($settings);
 
 	let previewElement: HTMLDivElement;
 	let textareaElement: HTMLTextAreaElement;
@@ -38,7 +38,7 @@
 		<div 
 			bind:this={previewElement}
 			class="preview-screen"
-			style="background-color: {backgroundColor}; color: {textColor}; font-size: {fontSize}; font-family: {fontFamily};"
+			style="background-color: {backgroundColor}; color: {textColor}; font-size: {previewTextSize}px; font-family: {fontFamily};"
 		>
 			<div class="preview-text">
 				{previewText}
@@ -63,7 +63,7 @@
 		padding: 1rem;
 		color: #e2e8f0;
 		font-family: 'Monaco', 'Courier New', monospace;
-		font-size: 14px;
+		font-size: 16px;
 		line-height: 1.5;
 		resize: none;
 		outline: none;

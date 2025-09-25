@@ -26,6 +26,7 @@ export const FACTORY_DEFAULTS: TypingSettings = {
 	fontSizeValue: 14,
 	fontSize: '14px',
 	fontFamily: AVAILABLE_FONTS[4].value, // Source Code Pro
+	previewTextSize: 12,
 	cursorVisible: true,
 	cursorBlinkSpeed: 500,
 	soundEnabled: true,

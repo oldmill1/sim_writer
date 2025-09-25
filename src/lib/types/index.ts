@@ -9,6 +9,7 @@ export interface TypingSettings {
 	fontSizeValue: number;
 	fontSize: string;
 	fontFamily: string;
+	previewTextSize: number;
 	cursorVisible: boolean;
 	cursorBlinkSpeed: number;
 	soundEnabled: boolean;
